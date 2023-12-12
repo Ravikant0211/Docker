@@ -1,0 +1,3 @@
+docker run -i -t IMAGE_ID = to be in interactive mode while taking input. -i and -t can be combined to -it.
+
+docker start -a -it CONTAINER_ID = to restart the container and listen to the user input
