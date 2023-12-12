@@ -1,0 +1,94 @@
+-Temporary data(File system) gets lost when a container is removed. It does not get lost on stopping the container.
+-Volumes helps persist the data.
+-Volumes are folders on your host machine(Hard drive) which are mounted("made available", mapped) into containers file System.
+And changes in either of them will reflect both sides.
+-Volumes persist if a container shuts down or removed.
+-Container can read or write data from or to volumes.
+
+-To see the errors log the output of the container using
+docker logs container_name
+
+- Anonymous Volumes do not persist data on removal of the container.
+And they can be created via instruction in Dockerfile.
+- Named Volumes are greate for data which should be persisted.
+And we can not create 'Named Volumes' inside of our Dockerfile.
+Named Volumes are created using '-v any_foldername_of_your_choice:path_inside_docker_fs' in docker run command.
+for example- docker run -d -p 
+3000:80 --rm --name feedback-app -v feedback:/app/feedback feedback-node:volumes
+
+- To check the volumes use the following command
+'docker volume ls'
+
+
+NOTES-
+We saw, that anonymous volumes are removed automatically, when a container is removed.
+
+This happens when you start / run a container with the --rm option.
+
+If you start a container without that option, the anonymous volume would NOT be removed, even if you remove the container (with docker rm ...).
+
+Still, if you then re-create and re-run the container (i.e. you run docker run ... again), a new anonymous volume will be created. So even though the anonymous volume wasn't removed automatically, it'll also not be helpful because a different anonymous volume is attached the next time the container starts (i.e. you removed the old container and run a new one).
+
+Now you just start piling up a bunch of unused anonymous volumes - you can clear them via docker volume rm VOL_NAME or docker volume prune.
+
+
+BIND MOUNTS-
+-Unlike Volumes, in Bind mounts we are fully aware of the path/folder on our host machine.
+-Volumes are managed by Docker while Bind mounts are managed by us.
+-Binds mounts help in not rebuilding images again and again after doing changes in the source code. Because, in this case we mount the entire folder
+into the file system of the container.
+-It is not added inside the Dockerfile.
+-Bind Mounts are created using '-v "aabsolute_path_of_folder_locally:path_inside_docker_fs"' in docker run command.
+for ex- ' docker run -d -p 3000:80 --rm --name feedback-app -v feedback:/app/feedback -v "C:\Users\Lenovo\Desktop\Personal-Workspace\Docker\data-volumes-01-starting-setup:/app" feedback-node:volumes'
+
+-Just a quick note: If you don't always want to copy and use the full path, you can use these shortcuts:
+macOS / Linux: -v $(pwd):/app
+Windows: -v "%cd%":/app
+
+-Now when you run the above command to run the container, you get an error that some dependencies are not find.
+for ex- 'Error: Cannot find module 'express''
+This is because while running the command you override the content of the /app folder in the container's file system with the code present at the absolute path
+you specified in the command. And at that path there is no node_modules folder present.
+-So how to solve this problem?
+-The answer is by adding one anonymouse volume to survice the node_modules folder inside /app directory installed by npm install command in dockerfile.
+You can assign anonymous volume using '-v /app/node_modules' like this, or specify it in the dockerfile instructions- 'VOLUME: ["/app/node_modules"]' like this.
+That means we can still bind to the /app folder but node_modules folder will not be overridden. Actually it will override the folder that is comming from the outside
+of the bind mount.
+-And hence the node_modules folder will survive and co-exist together with the bind mounts.
+CORRECTED COMMAND- "docker run -d -p 3000:80 --rm --name feedback-app -v feedback:/app/feedback -v "C:\Users\Lenovo\Desktop\Personal-Workspace\Docker\data-volumes-01-starting-setup:/app" -v /app/node_modules feedback-node:volumes"
+
+// command that needs to be understood
+-Remove 'VOLUME ["/app/temp"]' from Dockerfile and add it via command  
+docker run -d -p 3000:80 --rm --name feedback-app -v feedback:/app/feedback -v "C:\Users\Lenovo\Desktop\Personal-Workspace\Docker\data-volumes-01-starting-setup:/app:ro" -v /app/temp -v /app/node_modules feedback-node:volumes
+
+MANAGING DOCKER VOLUMES-
+docker volume ls = to list the volumes
+docker volume create = to create your volume on your own
+docker volume inspect volume_name = to inspect the volume in details
+docker volume rm volume_name = to remove the volume
+docker volume prune = to remove all unused volumes at a time
+
+QUESTIONS:- If we are using bind mounts which overrides all the source code in the workdir of docker file system. Then why
+we use 'COPY . .' instruction in the Dockerfile unneccesarily?
+ANS- yes, we can remove 'COPY . .' instruction from the Dockerfile and it works perfectly but when we use bind mounts.
+And remember we use bind mounts for the development purpose to not rebuild the image or restart the container again after
+some changes in the source code. But on the production server we don't use bind mounts so in that case we would need 
+'COPY . .' instruction.
+
+-----------------------------------------------------------------------------------------------------------------------------------
+ARGuments & ENVironment variables
+COMMAND- 'docker run -d -p 3000:8000 --env PORT=8000 
+--rm --name feedback-app -v feedback:/app/feedback -v "C:\Users\Lenovo\Desktop\Personal-Workspace\Docker\data-volumes-01-starting-setup:/app:ro" -v /app/node_modules -v /app/temp feedback-node:env'
+
+-You can also specify a file which contains environment variables.
+And in this you use '--env-file ./.env' instead of '--env PORT=8000'.
+You specify the key-value pairs in .env file.
+
+-Always go for a separate environments variable file which then be used only at runtime.
+with docker run command. Just because of security reasons, As you don't want your credentials or private keys
+to be baked into the image so that everyone can read them via 'docker history <image>'.
+
+##########################
+TO SET THE ARGuments
+docker build -t feedback-node:dev --build-arg DEFAULT_PORT=8000 .
+'DEFAULT_PORT' is the arg instruction set in dockerfile.
