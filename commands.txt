@@ -45,6 +45,34 @@ docker run --help = to know the details about the commands
 
 docker run -p 3000:80 -d --rm --name container_name imageId = to set the name of container
 
-docker build -t imagename:tag . = to specify the image name and its tag
+docker build -t imagename:tag = to specify the image name and its tag
 
 docker run -p 3000:80 -d --rm --name containerName imagename:tag = to start the container
+
+WILL PUSH or PULL TO DOCKERHUB-
+docker push IMAGE_NAME
+docker pull IMAGE_NAME
+
+Pushing Images to DockerHub-
+
+docker tag oldname:tag newname:tag = to retag an existing image
+
+docker push imagename = it will show access denied. So you need to login first
+
+docker login = to login to the docker account. Enter username and password.
+
+
+
+Pulling the Image from DockerHub-
+docker pull imagename@dockerhub
+
+Note - You must login while pushing to dockerhub but not when pulling from dockerhub.
+And 'docker pull' will always pull the latest repository by the imageName.
+You can also execute the command 'docker run imagename@dockerhub' to run the container
+of that image locally. If you already have that image locally. 
+'Docker run' does not guarantee that it will be fetch the lates image. Because, what if in the
+mean time the image is updated on the dockerhub. 
+So it is best practice to pull the image first using 'docker pull' and then start the container
+out of it.
+
+
