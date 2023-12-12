@@ -1,0 +1,50 @@
+docker run -p 3000:80 IMAGE_ID = attached Mode
+
+docker start CONTAINER_ID = detached Mode
+
+docker start -a CONTAINER_ID = to restart the container in attached mode
+
+docker run -p 3000:80 -d IMAGE_ID = detached Mode
+
+docker container attach CONTAINER_Name/CONT_ID = attached Mode
+
+docker logs CONTAINER_ID = to fetch the logs of a container
+
+docker logs -f CONTAINER_ID = to follow the future logs
+
+docker run -i -t IMAGE_ID = to be in interactive mode while taking input. -i and -t can be combined to -it.
+
+docker start -a -it CONTAINER_ID = to restart the container and listen to the user input
+
+docker rm container_name1 container_name2 container_name3 = to remove the stopped container
+
+docker container prune = to remove all the stopped containers at once.
+
+
+
+IMAGES COMMANDS
+docker images = to list all the images
+
+docker rmi image_id = to delete the image
+
+NOTE- you can't remove the image which is being used by any container including stopped ones
+
+docker image prune = to delete the images which are not used by run cons
+
+docker rmi imageId imageId imageId ....  = to remove the images by imageIds
+
+docker run -p 3000:80 -d --rm imageId = --rm insures that when this container is stopped it removes automatically.
+
+docker image inspect image_id = TO INSPECT THE IMAGE
+
+docker cp localfilepath containerName/path_inside_container = docker cp dummy/. containerName:/test, to put something into container
+
+docker cp containerName/path_inside_container localfilepath = to log something out of the container into the local host machine
+
+docker run --help = to know the details about the commands
+
+docker run -p 3000:80 -d --rm --name container_name imageId = to set the name of container
+
+docker build -t imagename:tag . = to specify the image name and its tag
+
+docker run -p 3000:80 -d --rm --name containerName imagename:tag = to start the container
