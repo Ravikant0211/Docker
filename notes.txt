@@ -1,0 +1,66 @@
+NETWORK AND NETWORK REQUESTS-
+1. from inside of container to world wide web communication
+2. from inside of container to localhost machine communication
+3. from inside of container to another container communication
+
+-You can send http request to world wide web from inside of the containerized application.
+You not need any special setup for that.
+
+-If you want to talk to local host machine from inside of your container.
+you only need to change the domain of the url.
+And 'domain' can be replaced by 'host.docker.internal'. It automatically
+resolves to the ip address of you localhost machine and understood by docker.
+for ex - 'mongodb://host.docker.internal:27017/swfavorites'
+
+-CONTAINERIZING MONGODB INSTANCE USING MONGO OFFICIAL IMAGE ON DOCKER HUB
+-You can use the following command to inspect docker container-
+'docker container inspect docker_name' 
+-Get the IPAddress of the mongo container from there. 
+-And to contact the mongo container use- 'mongodb://172.17.0.2:27017/swfavorites'
+
+-So to make cross container communication we need to get the ip address of the container
+And that is quite cumbersome. So there is more elegant way to do that. And here it is-
+-CONTAINER NETWORKS
+With networks, docker can automatically resolve ip addresses. 
+We just need to do is putting the containers inside one network,
+using 'docker run --network network_name ....' command.
+
+-But to do that you will have to create a network beforehand.
+'docker network --help'- to see all the options.
+-Use 'docker network create network_name' to create network.
+
+-Now in the url in the source code you will need to specify the container docker_name
+in place of ip address/localhost.
+for ex- 'mongodb://mongodb:27017/swfavorites',
+here second 'mongodb' is the name of the container created inside of the network.
+
+-Thereafter you can check the logs of the containers if everything works fine using
+the following command- 'docker logs container_name'.
+
+NOTE- You don't need to expose any port for the 'to be connetcted container'.
+for ex- 'docker run -d --name mongodb --network favorites-net  mongo'
+----------------------------------------------
+
+DOCKER NETWORK DRIVERS
+Docker Networks actually support different kinds of "Drivers" which influence the behavior of the Network.
+
+The default driver is the "bridge" driver - it provides the behavior shown in this module (i.e. Containers can find each other by name if they are in the same Network).
+
+The driver can be set when a Network is created, simply by adding the --driver option.
+
+docker network create --driver bridge my-net
+Of course, if you want to use the "bridge" driver, you can simply omit the entire option since "bridge" is the default anyways.
+
+Docker also supports these alternative drivers - though you will use the "bridge" driver in most cases:
+
+host: For standalone containers, isolation between container and host system is removed (i.e. they share localhost as a network)
+
+overlay: Multiple Docker daemons (i.e. Docker running on different machines) are able to connect with each other. Only works in "Swarm" mode which is a dated / almost deprecated way of connecting multiple containers
+
+macvlan: You can set a custom MAC address to a container - this address can then be used for communication with that container
+
+none: All networking is disabled.
+
+Third-party plugins: You can install third-party plugins which then may add all kinds of behaviors and functionalities
+
+As mentioned, the "bridge" driver makes most sense in the vast majority of scenarios.
