@@ -1,0 +1,59 @@
+COMMANDS USED-
+1. 'docker run --name mongodb --rm -d -p 27017:27017 mongo'
+2. 'docker run -p 3000:3000 --name goals-frontend --rm -it goals-react'
+3. 'docker run --name goals-backend --rm -d -p 80:80  goals-node'
+
+-by using the above commands all three containers are able to talk
+to each other but via local host machine since we are always exposing 
+the ports.
+
+-So lets put them all together inside one network
+1. create a network using- 'docker network create network_name'
+2. 'docker run --name mongodb --rm -d --network goals-net mongo'
+3. 'docker run --name goals-backend --rm -d --network goals-net  goals-node'
+4. 'docker run -p 3000:3000 --name goals-frontend --rm -it --network goals-net goals-react'
+
+NOTE- React code does not run in the container rather it runs in the browser.
+The only thing that runs in the container is the development server, serving the
+react application. So providing the backend's container name in api_url won't work.
+And That's why we will also need to expose the port of backend application
+so that react application can talk to that on the browser. Use the following command-
+- 'docker run -p 80:80 --name goals-backend --rm -d --network goals-net  goals-node'
+
+And since the react code does not execute in the docker environment and part, development server,
+which executes in the docker environment does not interact with any backend api.
+So it makes no sense in putting the goals-frontend container inside the network.
+And hence, use the following command to containerize the react app-
+- 'docker run -p 3000:3000 --name goals-frontend --rm -it goals-react'
+
+------------------------------------------------
+DATA PERSISTENT & LIMITED ACCESS TO MONGODB DATABASE-
+1. Data Persistency-
+'/data/db' inside the container, where MongoDB by default will write its data files.
+Command- 'docker run --name mongodb -v data:/data/db --rm -d --network goals-net mongo'.
+It ensures that data survives the tear down of mongodb container.
+
+2. Limited access to mongodb database-
+mongo image supports two environment variables- 'MONGO_INITDB_ROOT_USERNAME', 'MONGO_INITDB_ROOT_PASSWORD'
+Command- 'docker run --name mongodb -v data:/data/db -e MONGO_INITDB_ROOT_USERNAME=ravi -e MONGO_INITDB_ROOT_PASSWORD=ravi --rm -d --network goals-net mongo'
+Now to insure that backend-app is able to communicate to database, you need to manipulate the 
+mongodb connection string a little.
+Replace 'mongodb://mongodb:27017/course-goals' with 'mongodb://[username]:[password]@mongodb:27017/course-goals?authSource=admin'
+
+----------------------------------------------------------
+DATA PERSISTENCY IN BACKEND-
+Command= 'docker run -p 80:80 --name goals-backend 
+-v C:\Users\Lenovo\Desktop\Personal-Workspace\Docker\multi-container-01-starting-setup\multi-01-starting-setup\backend:/app -v /app/node_modules 
+-v logs:/app/logs -e MONGODB_USERNAME=ravi -e MONGODB_PASSWORD=ravi --rm --network goals-net  goals-node'
+
+-------------------------------------------------
+LIVE SOURCE CODE UPDATE IN FRONTEND-
+using Bind mount-
+Command- 'docker 
+run -v "C:\Users\Lenovo\Desktop\Personal-Workspace\Docker\multi-container-01-starting-setup\multi-01-starting-setup\frontend\src:/app/src" -p 3000:3000 --name goals-frontend --rm -it goals-react'
+
+
+
+
+
+
