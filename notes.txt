@@ -1,0 +1,40 @@
+-You don't have to specify --rm and -d flag in docker
+compose because it is done automatically by docker compose.
+
+-You don't have to define any network for the services
+as docker compose itself creates one environment for
+all its services defined in it.
+
+-If you are using any named volume inside your services
+you need to list them under 'volumes' property which resides
+at the same level as services. 
+-And also you can use the same named volume for other services 
+too.
+-You don't need to list anonymous/bind mounts volume under
+the 'volumes' property.
+
+-COMMAND TO START ALL THE SERVICES IN COMPOSE FILE
+    docker-compose up = to start
+    docker-compose up -d = to start in detached mode
+    docker-compose down = to Stop(it does not remove volumes);
+    docker-compose down -v = it removes volume too
+
+-to check the logs of the services use- 'docker logs container_name'
+
+-stdin_open: true => to tell docker that it needs open input connection
+-tty: true =>  to attaching the terminal
+
+-If you want to force docker-compose to rebuild the image
+you can use 'docker-compose up --build'
+
+-If you just want to build images and not start the containers
+you can do so with docker compose using following command-
+'docker-compose build'
+
+-To specify the names of the containers while using docker-compose
+You can specify 'container_name: containername' property inside of
+compose.yaml file.
+
+- A default network is created for all the composed containers 
+(i.e. all containers that are created by docker-compose are 
+automatically added to that network)
