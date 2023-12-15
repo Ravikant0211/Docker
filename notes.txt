@@ -1,0 +1,30 @@
+-'docker run -it -d node' = That means we can't enter commands further
+but container internally is waiting for input.
+
+-'docker exec -it container_name some_command' = This command allows you to execute certain commands
+inside of a running container, Besides the default commands, the
+container executes.
+for ex- 'docker exec -it container_name npm init'
+
+-we can override a default command following the syntax-
+'docker run -it node npm init'
+
+-'docker run -it -v C:\Users\Lenovo\Desktop\Personal-Workspace\Docker\utility-containers:/app node-util npm init'
+= to execute 'npm init' command without installing nodejs on local machine.
+
+-Whatever extra command you use after an image in docke run command.
+That overrides the 'CMD ["", ""]' property in Dockerfile. But it is appended
+to the 'ENTRYPOINT ["executable"]' property in Dockerfile.
+example-
+'docker run -it -v C:\Users\Lenovo\Desktop\Personal-Workspace\Docker\utility-containers:/app mynpm init'
+'docker run -it -v C:\Users\Lenovo\Desktop\Personal-Workspace\Docker\utility-containers:/app mynpm install'
+'docker run -it -v C:\Users\Lenovo\Desktop\Personal-Workspace\Docker\utility-containers:/app mynpm install express --save'
+
+-the container always shuts down after the above commands get executed.
+
+----------------------------------------
+WORKING WITH DOCKER COMPOSE
+----------------------------------------
+'docker-compose run --rm service_name any_command_to_be_appended_to_entrypoint_in_dockerfile'
+example- 1. 'docker-compose run npm init' => note: npm here is service name inside compose.
+2. 'docker-compose run --rm npm install express' => to install express => note: npm here is service name inside compose.
